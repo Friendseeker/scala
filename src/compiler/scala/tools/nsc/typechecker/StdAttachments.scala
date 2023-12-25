@@ -25,6 +25,8 @@ trait StdAttachments {
   type UnaffiliatedMacroContext = scala.reflect.macros.contexts.Context
   type MacroContext = UnaffiliatedMacroContext { val universe: self.global.type }
   case class MacroRuntimeAttachment(delayed: Boolean, typerContext: Context, macroContext: Option[MacroContext])
+  
+  case class MacroContextAttachment(macroContext: MacroContext)
 
   /** Scratchpad for the macro expander, which is used to store all intermediate data except the details about the runtime.
    */

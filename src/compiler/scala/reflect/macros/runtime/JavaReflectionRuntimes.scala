@@ -25,6 +25,7 @@ trait JavaReflectionRuntimes {
     self: MacroRuntimeResolver =>
 
     def resolveJavaReflectionRuntime(classLoader: ClassLoader): MacroRuntime = {
+      def saveContext(expandee: Tree, context: MacroContext): Unit = expandee.updateAttachment(MacroContextAttachment(context))
       val implClass = Class.forName(className, true, classLoader)
       val implMeths = implClass.getMethods.find(_.getName == methName)
       // relies on the fact that macro impls cannot be overloaded
@@ -41,12 +42,14 @@ trait JavaReflectionRuntimes {
 
         val Array(bundleCtor) = implClass.getConstructors.filter(isBundleCtor): @unchecked
         args => {
+          saveContext(args.c.expandee, args.c)
           val implObj = bundleCtor.newInstance(args.c)
           implMeth.invoke(implObj, args.others.asInstanceOf[Seq[AnyRef]]: _*)
         }
       } else {
         val implObj = ReflectionUtils.staticSingletonInstance(implClass)
         args => {
+          saveContext(args.c.expandee, args.c)
           val implArgs = args.c +: args.others
           implMeth.invoke(implObj, implArgs.asInstanceOf[Seq[AnyRef]]: _*)
         }
