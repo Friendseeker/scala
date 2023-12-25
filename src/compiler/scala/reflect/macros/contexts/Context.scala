@@ -13,6 +13,7 @@
 package scala.reflect.macros
 package contexts
 
+import scala.collection.mutable.ListBuffer
 import scala.tools.nsc.Global
 
 abstract class Context extends scala.reflect.macros.blackbox.Context
@@ -39,4 +40,6 @@ abstract class Context extends scala.reflect.macros.blackbox.Context
   val prefix: Expr[PrefixType]
 
   val expandee: Tree
+
+  lazy val touchedSymbols: ListBuffer[Symbol] = scala.collection.mutable.ListBuffer[Symbol]()
 }

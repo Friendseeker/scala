@@ -368,7 +368,6 @@ trait Macros extends MacroRuntimes with Traces with Helpers {
       val universe: self.global.type = self.global
       val callsiteTyper: universe.analyzer.Typer = typer.asInstanceOf[global.analyzer.Typer]
       val expandee = universe.analyzer.macroExpanderAttachment(expandeeTree).original orElse duplicateAndKeepPositions(expandeeTree)
-      lazy val touchedSymbols = scala.collection.mutable.ListBuffer[Symbol]()
     } with UnaffiliatedMacroContext {
       val prefix = Expr[Nothing](prefixTree)(TypeTag.Nothing)
       override def toString = "MacroContext(%s@%s +%d)".format(expandee.symbol.name, expandee.pos, enclosingMacros.length - 1 /* exclude myself */)
@@ -661,7 +660,7 @@ trait Macros extends MacroRuntimes with Traces with Helpers {
         }
       }
 
-      if (isBlackbox(expandee)) {
+      val result = if (isBlackbox(expandee)) {
         val expanded1 = atPos(enclosingMacroPosition.makeTransparent)(Typed(expanded0, TypeTree(innerPt)))
         typecheck("blackbox typecheck", expanded1, outerPt)
       } else {
@@ -672,7 +671,14 @@ trait Macros extends MacroRuntimes with Traces with Helpers {
         typecheck("whitebox typecheck #2", expanded2, outerPt)
       }
 
-      expandee.attachments.get[]
+      expandee.attachments.get[MacroContextAttachment].foreach(contextAttachment => {
+        val context = contextAttachment.macroContext
+        val expandee = context.expandee
+        val touchedSymbolAttachment = new Map.Map1[String, Any]("touchedSymbols", context.touchedSymbols.toList)
+        expandee.updateAttachment(touchedSymbolAttachment)
+        result.updateAttachment(touchedSymbolAttachment)
+      })
+      result
     }
     override def onDelayed(delayed: Tree) = {
       // =========== THE SITUATION ===========
