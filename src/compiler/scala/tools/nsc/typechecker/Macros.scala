@@ -674,7 +674,7 @@ trait Macros extends MacroRuntimes with Traces with Helpers {
       expandee.attachments.get[MacroContextAttachment].foreach(contextAttachment => {
         val context = contextAttachment.macroContext
         val expandee = context.expandee
-        val touchedSymbolAttachment = new Map.Map1[String, Any]("touchedSymbols", context.touchedSymbols.toList)
+        val touchedSymbolAttachment = MacroTouchedSymbolAttachment(context.touchedSymbols.toList)
         expandee.updateAttachment(touchedSymbolAttachment)
         result.updateAttachment(touchedSymbolAttachment)
       })

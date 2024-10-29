@@ -972,7 +972,7 @@ lazy val sbtTest = project.in(file("test") / "sbt-test")
       "-Dplugin.scalaVersion=" + version.value,
       "-Dsbt.boot.directory=" + (target.value / ".sbt-scripted").getAbsolutePath, // Workaround sbt/sbt#3469
       "-Dscripted.common=" + (baseDirectory.value / "common.sbt.template").getAbsolutePath,
-      // "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
+      "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005",
     ),
 
     // Pass along ivy home and repositories settings to sbt instances run from the tests

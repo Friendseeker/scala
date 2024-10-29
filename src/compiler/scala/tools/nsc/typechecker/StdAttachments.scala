@@ -28,6 +28,13 @@ trait StdAttachments {
   
   case class MacroContextAttachment(macroContext: MacroContext)
 
+  /**
+   * Stores touched symbols and types by Macro reflection API during Macro expansion
+   * @param touchedSymbol symbols touched by Macro reflection API during Macro expansion
+   * @param touchedTypes types touched by Macro reflection API during Macro expansion
+   */
+  case class MacroTouchedSymbolAndTypeAttachment(touchedSymbol: List[Symbol], touchedTypes: List[Type])
+
   /** Scratchpad for the macro expander, which is used to store all intermediate data except the details about the runtime.
    */
   case class MacroExpanderAttachment(original: Tree, desugared: Tree)
