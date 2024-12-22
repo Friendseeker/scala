@@ -87,11 +87,13 @@ sealed class ZincCompiler(settings: Settings, dreporter: DelegatingReporter, out
   // Hence when we run Scala Compiler against an old version of Zinc
   // AnalysisCallback3 is not in classpath
   // Hence asInstanceOf[AnalysisCallback3] throws a NoClassDefFoundError
-  private lazy val callback3Opt = scala.util.Try(callback.asInstanceOf[AnalysisCallback3]).toOption
+  private lazy val callback3 =
+    try callback.asInstanceOf[AnalysisCallback3]
+    catch { case _: NoClassDefFoundError => null}
 
   override def getSourceFile(f: AbstractFile): BatchSourceFile = {
-    val file = (f, callback3Opt) match {
-      case (plainFile: PlainFile, Some(callback3)) =>
+    val file = f match {
+      case plainFile: PlainFile if callback3 != null =>
         AbstractZincFile(callback3.toVirtualFile(plainFile.file.toPath))
       case _ => f
     }
